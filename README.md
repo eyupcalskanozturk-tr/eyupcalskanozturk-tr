@@ -1,7 +1,7 @@
-<h1 align="center">👋 Merhaba, ben Eyüp Çalışkanoztürk</h1>
-<p align="center">
+
+<h1 align="center">
   <img src="banner.png.png" alt="Eyüp Çalışkanöztürk Gold Banner" width="900"/>
-</p>
+</h1>
 
 
 
