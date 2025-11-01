@@ -43,9 +43,20 @@ Yeni teknolojiler öğrenmeyi, sade ama etkileyici tasarımlar oluşturmayı sev
 ---
 
 ### 📊 GitHub İstatistikleri
+### 📊 GitHub İstatistikleri
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=eyupcalskanozturk-tr&show_icons=true&theme=tokyonight&title_color=FFD700&icon_color=FFD700&text_color=FFFFFF&bg_color=000000" height="180px"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=eyupcalskanozturk-tr&layout=compact&theme=tokyonight&title_color=FFD700&text_color=FFFFFF&bg_color=000000" height="180px"/>
+  <img 
+       src="https://github-readme-stats.vercel.app/api?username=eyupcalskanozturk-tr&show_icons=true&bg_color=000000&title_color=FFD700&text_color=FFFFFF&icon_color=FFD700&border_color=FFD700&hide_border=false&hide_title=false" 
+       height="180" />
+  <img 
+       src="https://github-readme-streak-stats.herokuapp.com?user=eyupcalskanozturk-tr&theme=tokyonight-duo&date_format=j%20M%5B%20Y%5D&background=000000&ring=FFD700&fire=FFD700&currStreakLabel=FFD700&sideNums=FFFFFF&currStreakNum=FFFFFF&border=FFD700" 
+       height="180" />
+</p>
+
+<p align="center">
+  <img 
+       src="https://github-readme-stats.vercel.app/api/top-langs/?username=eyupcalskanozturk-tr&layout=compact&bg_color=000000&title_color=FFD700&text_color=FFFFFF&border_color=FFD700&langs_count=8" 
+       height="180" />
 </p>
 
 ---
