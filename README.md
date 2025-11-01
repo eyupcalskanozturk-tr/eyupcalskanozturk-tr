@@ -35,6 +35,12 @@ Yeni teknolojiler öğrenmeyi, sade ama etkileyici tasarımlar oluşturmayı sev
 - 🌦️ [Modern Hava Durumu Uygulaması](https://github.com/eyupcalskanozturk-tr/weather-app)
 - 🎮 [CMD Dinozor Oyunu (C#)](https://github.com/eyupcalskanozturk-tr/console-trex)
 - 🧠 [Basit Yapay Zeka Denemesi](https://github.com/eyupcalskanozturk-tr/ai-mini-project)
+---
+### 🚀 Canlı Projeler
+| Proje | Açıklama | Link |
+|-------|-----------|------|
+| 🔑 Gold Password Generator | Güçlü, modern tasarımlı şifre oluşturucu | [Canlı Dene](https://eyupcalskanozturk-tr.github.io/gold-password-generator/) |
+| 🎮 Web Dino Game | Tarayıcıda oynanabilir mini dino oyunu | [Canlı Oyna](https://eyupcalskanozturk-tr.github.io/web-dino-game/) |
 
 ---
 
