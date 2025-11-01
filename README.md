@@ -1,6 +1,6 @@
 <h1 align="center">
   <img src="banner.png.png" alt="Eyüp Çalışkanöztürk Gold Banner" width="900"/>
-  <img src="tr1.jpeg" alt="TR Banner" width="450"/>
+  <img src="tr1.jpeg" alt="TR Banner" width="150"/>
 </h1>
 
 <p align="center">
