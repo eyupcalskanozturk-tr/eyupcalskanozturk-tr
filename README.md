@@ -46,10 +46,10 @@ Yeni teknolojiler öğrenmeyi, sade ama etkileyici tasarımlar oluşturmayı sev
 ### 🌐 Sosyal Bağlantılar
 <p align="center">
   <a href="mailto:eyupcalskanofficial@gmail.com"><img src="https://img.shields.io/badge/Mail-111111?style=for-the-badge&logo=gmail&logoColor=gold"/></a>
-  <a href="https://www.instagram.com/eyupcalskanozturk"><img src="https://img.shields.io/badge/Instagram-111111?style=for-the-badge&logo=instagram&logoColor=gold"/><a href="https://www.linkedin.com/in/ey%C3%BCp-%C3%A7ali%C5%9Fkan%C3%B6zt%C3%BCrk-413208273/" target="_blank">
-  <img src="https://img.shields.io/badge/LinkedIn-111111?style=for-the-badge&logo=linkedin&logoColor=gold" alt="LinkedIn"/>
-</a>
-
+  <a href="https://www.instagram.com/eyupcalskanozturk"><img src="https://img.shields.io/badge/Instagram-111111?style=for-the-badge&logo=instagram&logoColor=gold"/></a>
+  <a href="https://www.linkedin.com/in/ey%C3%BCp-%C3%A7ali%C5%9Fkan%C3%B6zt%C3%BCrk-413208273/" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-111111?style=for-the-badge&logo=linkedin&logoColor=gold" alt="LinkedIn"/>
+  </a>
 </p>
 
 ---
