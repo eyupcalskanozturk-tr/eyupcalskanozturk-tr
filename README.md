@@ -28,7 +28,7 @@ Yeni teknolojiler öğrenmeyi, sade ama etkileyici tasarımlar oluşturmayı sev
 ---
 
 ### 📁 Öne Çıkan Projeler
-- 🔑 [Şifre Oluşturucu (Gold-Black UI)](https://github.com/eyupcalskanozturk-tr/password-generator)
+- 🔑 [Şifre Oluşturucu (Gold-Black UI)](https://github.com/eyupcalskanozturk-tr/gold-password-generator)
 - 🌦️ [Modern Hava Durumu Uygulaması](https://github.com/eyupcalskanozturk-tr/weather-app)
 - 🎮 [CMD Dinozor Oyunu (C#)](https://github.com/eyupcalskanozturk-tr/console-trex)
 - 🧠 [Basit Yapay Zeka Denemesi](https://github.com/eyupcalskanozturk-tr/ai-mini-project)
