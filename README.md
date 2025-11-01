@@ -1,7 +1,8 @@
 <h1 align="center">👋 Merhaba, ben Eyüp Çalışkanoztürk</h1>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/eyupcalskanozturk-tr/eyupcalskanozturk-tr/main/banner.svg?sanitize=true" alt="Eyüp Çalışkanoztürk Gold Banner"/>
+  <img src="banner.png.png" alt="Eyüp Çalışkanöztürk Gold Banner" width="900"/>
 </p>
+
 
 
 
