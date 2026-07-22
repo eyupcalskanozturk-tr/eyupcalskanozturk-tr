@@ -196,13 +196,13 @@ artan zorluk, mobil dokunmatik kontrol desteği.
 ## `05.` Let's Connect
 
 <p align="center">
-  <a href="mailto:SENIN@MAIL.com">
+  <a href="mailto:eyupcalskanofficial@gmail.com">
     <img src="https://img.shields.io/badge/Email-0a0a0a?style=for-the-badge&logo=gmail&logoColor=FFD700" />
   </a>
-  <a href="https://linkedin.com/in/KULLANICI_ADIN">
+  <a href="www.linkedin.com/in/eyüp-çalişkanöztürk-413208273">
     <img src="https://img.shields.io/badge/LinkedIn-0a0a0a?style=for-the-badge&logo=linkedin&logoColor=FFD700" />
   </a>
-  <a href="https://instagram.com/KULLANICI_ADIN">
+  <a href="https://instagram.com/eyupcalskanozturk">
     <img src="https://img.shields.io/badge/Instagram-0a0a0a?style=for-the-badge&logo=instagram&logoColor=FFD700" />
   </a>
   <a href="https://youtube.com/@farscale">
