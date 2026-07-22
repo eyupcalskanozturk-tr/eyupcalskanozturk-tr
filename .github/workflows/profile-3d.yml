@@ -1,0 +1,34 @@
+name: Generate 3D Contribution Graph
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate 3D contribution profile
+        uses: yoshi389111/github-profile-3d-contrib@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+        with:
+          settings_json: .github/profile-3d.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A profile-3d-contrib
+          git diff --quiet --cached || git commit -m "chore: 3d contribution grafigi guncellendi"
+          git push

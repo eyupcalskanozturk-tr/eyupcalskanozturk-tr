@@ -1,0 +1,10 @@
+{
+  "type": "season",
+  "fileName": "eyup-3d",
+  "backgroundColor": "#0a0a0a",
+  "foregroundColor": "#e5e5e5",
+  "growingAnimation": true,
+  "contribTextColor": "#FFD700",
+  "radiusUpperCorner": 2,
+  "radiusBottomCorner": 2
+}
