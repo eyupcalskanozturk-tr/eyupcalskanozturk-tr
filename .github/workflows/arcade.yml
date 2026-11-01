@@ -1,0 +1,95 @@
+name: Günün arcade oyunu
+
+# Katkı grafiğini her gün (Türkiye saatiyle) başka bir arcade oyununa çevirir:
+# Pac-Man, Breakout, Galaga, Puzzle Bobble, Bomberman, Mayın Tarlası.
+# Oyunu üreten üçüncü taraf action sabit bir sürümle ve yalnızca okuma izniyle çalışır;
+# sonucu yazma izni olan ayrı bir iş, geçmiş tutmadan "output" dalına yazar.
+on:
+  schedule:
+    - cron: "7 21 * * *" # her gün 00:07 (Türkiye)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/arcade.yml"
+
+concurrency:
+  group: arcade
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      title: ${{ steps.pick.outputs.title }}
+    steps:
+      - name: Günün oyununu seç
+        id: pick
+        run: |
+          games=(pacman breakout galaga puzzle-bobble bomberman minesweeper)
+          titles=("Pac-Man" "Breakout" "Galaga" "Puzzle Bobble" "Bomberman" "Mayın Tarlası")
+          day=$(TZ=Europe/Istanbul date +%j)
+          i=$(( 10#$day % ${#games[@]} ))
+          echo "game=${games[$i]}" >> "$GITHUB_OUTPUT"
+          echo "title=${titles[$i]}" >> "$GITHUB_OUTPUT"
+
+      - name: Katkı grafiğinden oyunu üret
+        uses: abozanona/pacman-contribution-graph@7332e1de7903ab780c3692a4127a59cc13872daa # v5.3.2
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          games: ${{ steps.pick.outputs.game }}
+
+      - name: Dosyaları adlandır
+        env:
+          GAME: ${{ steps.pick.outputs.game }}
+        run: |
+          mkdir -p out
+          cp "dist/${GAME}-contribution-graph.svg" out/arcade.svg
+          cp "dist/${GAME}-contribution-graph-dark.svg" out/arcade-dark.svg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arcade
+          path: out/
+          retention-days: 1
+
+  publish:
+    needs: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: arcade
+          path: out
+
+      - name: Oyun adı etiketi
+        env:
+          TITLE: ${{ needs.generate.outputs.title }}
+        run: |
+          cat > out/arcade-label.svg <<EOF
+          <svg xmlns="http://www.w3.org/2000/svg" width="520" height="56" viewBox="0 0 520 56" role="img" aria-label="Bugünün oyunu: ${TITLE}">
+            <style>.b{animation:b 1.2s steps(1) infinite}@keyframes b{50%{opacity:0}}@media (prefers-reduced-motion:reduce){.b{animation:none}}</style>
+            <rect x=".5" y=".5" width="519" height="55" rx="27.5" fill="#0d1018" stroke="#e6b443" stroke-opacity=".45"/>
+            <circle class="b" cx="30" cy="28" r="6" fill="#4dff7c"/>
+            <text x="48" y="35" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#a9a39a">BUGÜNÜN OYUNU</text>
+            <text x="206" y="35" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="21" font-weight="800" fill="#e6b443">${TITLE}</text>
+          </svg>
+          EOF
+
+      - name: output dalına yayınla
+        working-directory: out
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init -q -b output
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Günün arcade oyunu: $(TZ=Europe/Istanbul date +'%Y-%m-%d')"
+          git push -q --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" output
