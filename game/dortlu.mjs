@@ -3,19 +3,18 @@
 // ---------------------------------------------------------------
 // Ziyaretçi README'deki bir sütuna tıklar; "dortlu|sutun|N" başlıklı bir issue açılır.
 // .github/workflows/dortlu.yml bu betiği çalıştırır: hamle oynanır, bot cevap verir,
-// tahta (game/dortlu.svg) ve README bölümü yeniden çizilir, issue'ya cevap yazılıp kapatılır.
+// tahta (game/sutun-1..7.svg) ve README bölümü yeniden çizilir, issue'ya cevap yazılıp kapatılır.
 //
 //   ISSUE_TITLE="dortlu|sutun|4" ISSUE_USER=login ISSUE_NUMBER=12 node game/dortlu.mjs move
 //   node game/dortlu.mjs render   → README bölümünü ve tahtayı durumdan yeniden üretir
 //   node game/dortlu.mjs reset    → boş yeni oyun (skorlar ve son hamleler korunur)
 
-import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATE_FILE = resolve(here, "dortlu.json");
-const BOARD_FILE = resolve(here, "dortlu.svg");
 const README_FILE = resolve(here, "..", "README.md");
 const REPO = /^[\w.-]+\/[\w.-]+$/.test(process.env.GITHUB_REPOSITORY || "") ? process.env.GITHUB_REPOSITORY : "eyupcalskanozturk-tr/eyupcalskanozturk-tr";
 const PROFILE_URL = `https://github.com/${REPO.split("/")[0]}`;
@@ -111,72 +110,70 @@ function newGame(previous = {}) {
 const load = () => JSON.parse(readFileSync(STATE_FILE, "utf8"));
 const save = (state) => writeFileSync(STATE_FILE, JSON.stringify(state, null, 2) + "\n");
 
-// ───────── Çizim: tahta SVG'si ─────────
-const CELL = 72, BX = 28, BY = 106, BW = COLS * CELL, BH = ROWS * CELL, SW = BW + BX * 2, SH = BY + BH + 74;
-const cx = (c) => BX + c * CELL + CELL / 2, cy = (r) => BY + r * CELL + CELL / 2;
+// ───────── Çizim: tıklanabilir sütunlar ─────────
+// Tahta 7 ayrı sütun görselinden oluşur (game/sutun-1..7.svg). README'de her görsel kendi
+// hamle linkine sarılıp boşluksuz yan yana dizilir: tahtada bir sütuna tıklamak o sütuna
+// taş atar. (Linksiz bir görsele tıklamak GitHub'da SVG'yi yeni sekmede açar.)
+const COLW = 76, HEAD = 56, CELL = 76, PANEL_H = ROWS * CELL, COLH = HEAD + PANEL_H + 12;
+const discX = COLW / 2, discY = (r) => HEAD + r * CELL + CELL / 2;
 const esc = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
 function statusText(state) {
-  if (!state.over) return state.moves ? "Sıra sende: bir sütun seç" : "Yeni oyun: ilk hamle senin";
-  if (state.result.winner === "ziyaretci") return `@${state.result.login} botu yendi!`;
-  if (state.result.winner === "bot") return "Bot kazandı. Rövanş için bir sütun seç";
-  return "Berabere! Yeni oyun için bir sütun seç";
+  if (!state.over) return state.moves ? "Sıra sende: tahtada bir sütuna tıkla" : "Yeni oyun: ilk hamle senin, bir sütuna tıkla";
+  if (state.result.winner === "ziyaretci") return `@${state.result.login} botu yendi! Yeni oyun için bir sütuna tıkla`;
+  if (state.result.winner === "bot") return "Bot kazandı. Rövanş için bir sütuna tıkla";
+  return "Berabere! Yeni oyun için bir sütuna tıkla";
 }
-function renderBoard(state) {
-  const winSet = new Set((state.winLine || []).map(([r, c]) => `${r},${c}`));
+function renderColumn(state, c) {
+  const full = state.board[0][c] !== 0 && !state.over;
+  const winSet = new Set((state.winLine || []).map(([r, cc]) => `${r},${cc}`));
   const lastIndex = new Map(state.last.map((m, i) => [`${m.r},${m.c}`, i]));
-  const holes = [], discs = [];
-  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-    holes.push(`<circle cx="${cx(c)}" cy="${cy(r)}" r="27" fill="#090b16"/>`);
+  const parts = [];
+  for (let r = 0; r < ROWS; r++) {
+    parts.push(`<circle cx="${discX}" cy="${discY(r)}" r="27" fill="#090b16"/>`);
     const cell = state.board[r][c];
     if (!cell) continue;
-    const fill = cell === HUMAN ? "url(#blue)" : "url(#gold)";
-    const key = `${r},${c}`;
-    const win = winSet.has(key) ? ` class="win"` : "";
-    const order = lastIndex.get(key);
+    const key = `${r},${c}`, order = lastIndex.get(key), lift = -(discY(r) - HEAD + CELL);
     // Son iki taş yukarıdan düşer (önce ziyaretçininki, sonra botunki)
     const fall = order === undefined ? "" :
-      `<animateTransform attributeName="transform" type="translate" from="0 ${-(cy(r) - BY + CELL)}" to="0 0" begin="${(.3 + order * .75).toFixed(2)}s" dur="${(.35 + r * .05).toFixed(2)}s" calcMode="spline" keyTimes="0;1" keySplines=".55 0 1 .45" fill="freeze"/>`;
-    const start = order === undefined ? "" : ` transform="translate(0 ${-(cy(r) - BY + CELL)})"`;
-    const ring = order === state.last.length - 1 && !state.winLine ? `<circle cx="${cx(c)}" cy="${cy(r)}" r="30" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>` : "";
-    discs.push(`<g${start}${win}>${fall}<circle cx="${cx(c)}" cy="${cy(r)}" r="27" fill="${fill}"/><circle cx="${cx(c) - 8}" cy="${cy(r) - 9}" r="8" fill="#fff" fill-opacity=".22"/>${ring}</g>`);
+      `<animateTransform attributeName="transform" type="translate" from="0 ${lift}" to="0 0" begin="${(.3 + order * .75).toFixed(2)}s" dur="${(.35 + r * .05).toFixed(2)}s" calcMode="spline" keyTimes="0;1" keySplines=".55 0 1 .45" fill="freeze"/>`;
+    const startAt = order === undefined ? "" : ` transform="translate(0 ${lift})"`;
+    const ring = order === state.last.length - 1 && !state.winLine
+      ? `<circle cx="${discX}" cy="${discY(r)}" r="30" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>` : "";
+    parts.push(`<g${startAt}${winSet.has(key) ? ' class="win"' : ""}>${fall}<circle cx="${discX}" cy="${discY(r)}" r="27" fill="url(#${cell === HUMAN ? "blue" : "gold"})"/><circle cx="${discX - 8}" cy="${discY(r) - 9}" r="8" fill="#fff" fill-opacity=".22"/>${ring}</g>`);
   }
+  // Kazanan çizgi tahtanın genel koordinatlarında çizilir; her sütun kendi payını gösterir.
   const line = state.winLine ? (() => {
     const [a, b] = [state.winLine[0], state.winLine[3]];
-    return `<line class="glow" x1="${cx(a[1])}" y1="${cy(a[0])}" x2="${cx(b[1])}" y2="${cy(b[0])}" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-opacity=".85"/>`;
+    const x = (col) => col * COLW + COLW / 2 - c * COLW;
+    return `<line class="glow" x1="${x(a[1])}" y1="${discY(a[0])}" x2="${x(b[1])}" y2="${discY(b[0])}" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-opacity=".85"/>`;
   })() : "";
-  const accent = !state.over ? "#a9a39a" : state.result.winner === "ziyaretci" ? "#4dff7c" : state.result.winner === "bot" ? "#e6b443" : "#a9a39a";
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SW}" height="${SH}" viewBox="0 0 ${SW} ${SH}" role="img" aria-labelledby="title">
-<title id="title">Dörtlü tahtası · oyun #${state.game} · ${esc(statusText(state))}</title>
+  const arrow = state.over ? "#e6b443" : "#3ea7ff";
+  const header = full
+    ? `<text x="${discX}" y="24" text-anchor="middle" font-family="${MONO}" font-size="17" fill="#4a4652">${c + 1}</text><path d="M${discX - 6} 33l12 11M${discX + 6} 33l-12 11" stroke="#4a4652" stroke-width="2.5" stroke-linecap="round"/>`
+    : `<text x="${discX}" y="24" text-anchor="middle" font-family="${MONO}" font-size="17" fill="#8b949e">${c + 1}</text><path class="bob" style="animation-delay:${(c * .12).toFixed(2)}s" d="M${discX - 9} 34l9 9 9-9" fill="none" stroke="${arrow}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${COLW}" height="${COLH}" viewBox="0 0 ${COLW} ${COLH}" role="img" aria-labelledby="t">
+<title id="t">${full ? `${c + 1}. sütun dolu` : `${c + 1}. sütuna taş at`}</title>
 <style>
   .win { animation: pulse 1.4s ease-in-out infinite; }
   .glow { animation: glow 1.4s ease-in-out infinite; }
+  .bob { animation: bob 1.6s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: .78; } }
   @keyframes glow { 50% { stroke-opacity: .35; } }
-  @media (prefers-reduced-motion: reduce) { .win, .glow { animation: none; } }
+  @keyframes bob { 50% { transform: translateY(4px); } }
+  @media (prefers-reduced-motion: reduce) { .win, .glow, .bob { animation: none; } }
 </style>
 <defs>
   <radialGradient id="blue" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#9fe0ff"/><stop offset=".55" stop-color="#3ea7ff"/><stop offset="1" stop-color="#1d5fd0"/></radialGradient>
   <radialGradient id="gold" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".55" stop-color="#f2b53a"/><stop offset="1" stop-color="#b9780f"/></radialGradient>
   <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2580"/><stop offset="1" stop-color="#191457"/></linearGradient>
-  <clipPath id="inside"><rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="18"/></clipPath>
+  <clipPath id="tube"><rect x="3" y="${HEAD}" width="${COLW - 6}" height="${PANEL_H}" rx="16"/></clipPath>
 </defs>
-<rect width="${SW}" height="${SH}" rx="22" fill="#0d1018"/>
-<rect x=".5" y=".5" width="${SW - 1}" height="${SH - 1}" rx="21.5" fill="none" stroke="#fff" stroke-opacity=".08"/>
-<text x="${SW / 2}" y="44" text-anchor="middle" font-family="${SANS}" font-size="21" font-weight="700" fill="${accent}">${esc(statusText(state))}</text>
-${Array.from({ length: COLS }, (_, c) => `<text x="${cx(c)}" y="${BY - 16}" text-anchor="middle" font-family="${MONO}" font-size="16" fill="${state.board[0][c] ? "#4a4652" : "#a9a39a"}">${c + 1}</text>`).join("")}
-<rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="18" fill="url(#panel)"/>
-<g clip-path="url(#inside)">
-${holes.join("")}
-${discs.join("\n")}
+${header}
+<rect x="3" y="${HEAD}" width="${COLW - 6}" height="${PANEL_H}" rx="16" fill="url(#panel)"/>
+<g clip-path="url(#tube)">${parts.join("")}</g>
 ${line}
-</g>
-<rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="18" fill="none" stroke="#fff" stroke-opacity=".12"/>
-<circle cx="${BX + 10}" cy="${SH - 30}" r="9" fill="url(#blue)"/><text x="${BX + 26}" y="${SH - 24}" font-family="${SANS}" font-size="16" fill="#c9c2b6">sen</text>
-<circle cx="${BX + 84}" cy="${SH - 30}" r="9" fill="url(#gold)"/><text x="${BX + 100}" y="${SH - 24}" font-family="${SANS}" font-size="16" fill="#c9c2b6">Eyüp'ün botu</text>
-<text x="${SW - BX}" y="${SH - 24}" text-anchor="end" font-family="${MONO}" font-size="14" fill="#7d766e">oyun #${state.game} · hamle ${state.moves}</text>
 </svg>
 `;
 }
@@ -188,9 +185,11 @@ function moveLink(col) {
   return `https://github.com/${REPO}/issues/new?title=${title}&body=${body}`;
 }
 function renderSection(state) {
-  const keys = Array.from({ length: COLS }, (_, c) => state.board[0][c] && !state.over
-    ? `<kbd>&nbsp;&nbsp;·&nbsp;&nbsp;</kbd>`
-    : `<a href="${moveLink(c + 1)}"><kbd>&nbsp;&nbsp;${c + 1}&nbsp;&nbsp;</kbd></a>`).join(" ");
+  // Görseller arasında boşluk olmamalı: aksi halde sütunlar birbirinden kopar.
+  const columns = Array.from({ length: COLS }, (_, c) => {
+    const full = state.board[0][c] !== 0 && !state.over;
+    return `<a href="${moveLink(c + 1)}"><img src="https://raw.githubusercontent.com/${REPO}/main/game/sutun-${c + 1}.svg?v=${state.version}" width="10%" alt="${full ? `${c + 1}. sütun dolu` : `${c + 1}. sütuna taş at`}"></a>`;
+  }).join("");
   const { ziyaretci, bot, berabere } = state.stats;
   const recent = state.recent.length
     ? state.recent.map((m) => `<a href="https://github.com/${m.login}">@${m.login}</a> ${m.col}. sütun${m.result ? ` (${m.result})` : ""}`).join(" · ")
@@ -198,14 +197,16 @@ function renderSection(state) {
   // Saf HTML: GitHub'da da, başka markdown işleyicilerinde de aynı görünür.
   return `${START}
 <h3 align="center">Dörtlü: Eyüp'ün botunu yenebilir misin?</h3>
-<p align="center">Aynı renkten <b>4 taşı</b> yan yana, alt alta ya da çapraz diz. Bir sütun seç, açılan sayfada <b>Create</b>'e bas.<br>Hamleni oynarım, bot hemen cevap verir; tahta birkaç saniye içinde burada güncellenir.</p>
-<p align="center">${keys}</p>
-<p align="center"><img src="https://raw.githubusercontent.com/${REPO}/main/game/dortlu.svg?v=${state.version}" width="560" alt="Dörtlü tahtası, oyun ${state.game}: ${esc(statusText(state))}"></p>
+<p align="center">Aynı renkten <b>4 taşı</b> yan yana, alt alta ya da çapraz diz. <b>Tahtada bir sütuna tıkla</b>, açılan sayfada <b>Create</b>'e bas.<br>Hamleni oynarım, bot hemen cevap verir; tahta birkaç saniye içinde burada güncellenir.</p>
+<p align="center"><b>${esc(statusText(state))}</b></p>
+<p align="center">${columns}</p>
+<p align="center"><sub>🔵 sen · 🟡 Eyüp'ün botu · oyun #${state.game} · hamle ${state.moves}</sub></p>
 <p align="center">Ziyaretçiler <b>${ziyaretci}</b> · Bot <b>${bot}</b> · Berabere <b>${berabere}</b><br><sub>Son hamleler: ${recent}</sub></p>
 ${END}`;
 }
 function writeOutputs(state) {
-  writeFileSync(BOARD_FILE, renderBoard(state));
+  for (let c = 0; c < COLS; c++) writeFileSync(resolve(here, `sutun-${c + 1}.svg`), renderColumn(state, c));
+  rmSync(resolve(here, "dortlu.svg"), { force: true }); // eski tek parça tahta
   const readme = readFileSync(README_FILE, "utf8");
   const a = readme.indexOf(START), b = readme.indexOf(END);
   if (a < 0 || b < a) throw new Error("README'de DORTLU işaretleri bulunamadı");

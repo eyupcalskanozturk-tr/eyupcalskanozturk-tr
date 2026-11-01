@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="76" height="524" viewBox="0 0 76 524" role="img" aria-labelledby="t">
+<title id="t">7. sütuna taş at</title>
+<style>
+  .win { animation: pulse 1.4s ease-in-out infinite; }
+  .glow { animation: glow 1.4s ease-in-out infinite; }
+  .bob { animation: bob 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .78; } }
+  @keyframes glow { 50% { stroke-opacity: .35; } }
+  @keyframes bob { 50% { transform: translateY(4px); } }
+  @media (prefers-reduced-motion: reduce) { .win, .glow, .bob { animation: none; } }
+</style>
+<defs>
+  <radialGradient id="blue" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#9fe0ff"/><stop offset=".55" stop-color="#3ea7ff"/><stop offset="1" stop-color="#1d5fd0"/></radialGradient>
+  <radialGradient id="gold" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".55" stop-color="#f2b53a"/><stop offset="1" stop-color="#b9780f"/></radialGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2580"/><stop offset="1" stop-color="#191457"/></linearGradient>
+  <clipPath id="tube"><rect x="3" y="56" width="70" height="456" rx="16"/></clipPath>
+</defs>
+<text x="38" y="24" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#8b949e">7</text><path class="bob" style="animation-delay:0.72s" d="M29 34l9 9 9-9" fill="none" stroke="#3ea7ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="3" y="56" width="70" height="456" rx="16" fill="url(#panel)"/>
+<g clip-path="url(#tube)"><circle cx="38" cy="94" r="27" fill="#090b16"/><circle cx="38" cy="170" r="27" fill="#090b16"/><circle cx="38" cy="246" r="27" fill="#090b16"/><circle cx="38" cy="322" r="27" fill="#090b16"/><circle cx="38" cy="398" r="27" fill="#090b16"/><circle cx="38" cy="474" r="27" fill="#090b16"/></g>
+
+</svg>
