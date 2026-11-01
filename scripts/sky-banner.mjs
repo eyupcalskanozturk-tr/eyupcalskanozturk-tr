@@ -160,6 +160,20 @@ for (let m = 0; m <= 1440; m += 20) {
 }
 const markerX = stripX + stripW * today.minutes / 1440;
 
+// Denizde güneşin (gece ayın) yansıdığı yerde kayan parıltılar
+const glintColor = sunVisible > .3 ? c.sun : [246, 243, 234];
+const glintAlpha = .55 * Math.max(sunVisible, moonAlpha * .6);
+const glintCenter = sunVisible > .3 ? sunX : moonX;
+const glints = glintAlpha < .05 ? "" : Array.from({ length: 6 }, (_, i) => {
+  const width = 18 + random() * 46;
+  const x = glintCenter + (random() - .5) * sunR * 4 - width / 2;
+  const y = horizon + (seaBottom - horizon) * (.18 + random() * .6);
+  return `<rect class="glint" style="animation-delay:${(i * .85).toFixed(2)}s" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${width.toFixed(1)}" height="2" rx="1" fill="${toHex(glintColor)}" fill-opacity="${glintAlpha.toFixed(3)}"/>`;
+}).join("");
+
+// Gece arada bir kayan yıldız
+const shootingStar = stars < .6 ? "" : `<g class="shoot"><line x1="1010" y1="112" x2="1074" y2="88" stroke="url(#shoot)" stroke-width="2.2" stroke-linecap="round"/></g>`;
+
 const degrees = Math.round(Math.abs(alt));
 const status = `${clock(today.minutes)} itibarıyla ${phase} · güneş ufkun ${degrees}° ${alt >= 0 ? "üstünde" : "altında"}`;
 const esc = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -174,9 +188,25 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   .tw1 { animation: tw 5.2s ease-in-out infinite .9s; }
   .tw2 { animation: tw 4.4s ease-in-out infinite 2.1s; }
   .led { animation: led 2.4s ease-in-out infinite; }
+  .rise1 { animation: rise 1.1s cubic-bezier(.16, 1, .3, 1) both; }
+  .rise2 { animation: rise 1.1s cubic-bezier(.16, 1, .3, 1) .16s both; }
+  .fade { animation: fade 1.2s ease .6s both; }
+  .halo { animation: breathe 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .glint { animation: glint 5s ease-in-out infinite both; }
+  .shoot { opacity: 0; animation: shoot 9s linear 2.5s infinite; }
+  .pulse { animation: pulse 2.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
   @keyframes tw { 50% { opacity: .35; } }
   @keyframes led { 50% { opacity: .45; } }
-  @media (prefers-reduced-motion: reduce) { .tw0, .tw1, .tw2, .led { animation: none; } }
+  @keyframes rise { from { transform: translateY(34px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes breathe { 50% { transform: scale(1.08); opacity: .8; } }
+  @keyframes glint { 0%, 100% { opacity: 0; transform: translateX(-16px); } 50% { opacity: 1; transform: translateX(16px); } }
+  @keyframes shoot { 0% { opacity: 0; transform: translate(0, 0); } 2% { opacity: 1; } 11% { opacity: 0; transform: translate(-460px, 170px); } 100% { opacity: 0; transform: translate(-460px, 170px); } }
+  @keyframes pulse { from { transform: scale(.7); opacity: .9; } to { transform: scale(2); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .tw0, .tw1, .tw2, .led, .rise1, .rise2, .fade, .halo, .glint, .pulse { animation: none; }
+    .shoot { display: none; }
+  }
 </style>
 <defs>
   <radialGradient id="haze" cx="${(sunX / W).toFixed(3)}" cy=".62" r=".55">
@@ -203,6 +233,9 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
     <stop offset="0" stop-color="${toHex(c.sun)}" stop-opacity="${reflection.toFixed(3)}"/><stop offset=".72" stop-color="${toHex(c.sun)}" stop-opacity="0"/>
   </radialGradient>
   <linearGradient id="day" gradientUnits="userSpaceOnUse" x1="${stripX}" y1="0" x2="${stripX + stripW}" y2="0">${stripStops.join("")}</linearGradient>
+  <linearGradient id="shoot" gradientUnits="userSpaceOnUse" x1="1010" y1="112" x2="1074" y2="88">
+    <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
   <clipPath id="surname"><path transform="${nameTransform(base2)}" d="${NAME.second.path}"/></clipPath>
 </defs>
 
@@ -210,29 +243,38 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
 <rect width="${W}" height="${H}" rx="24" fill="url(#haze)"/>
 <rect x=".5" y=".5" width="${W - 1}" height="${H - 1}" rx="23.5" fill="none" stroke="#fff" stroke-opacity=".07"/>
 ${starField(46, 20, 90, W - 40, 380, stars * .5)}
+${shootingStar}
 
-<circle class="led" cx="${PAD + 5}" cy="58" r="5" fill="#4dff7c"/>
-<text x="${PAD + 20}" y="64" font-family="${SANS}" font-size="19" fill="#c9c2b6">Full-stack developer · Çanakkale, Türkiye</text>
-<text x="${W - PAD}" y="64" text-anchor="end" font-family="${MONO}" font-size="15" fill="#a29d91">${esc(status)}</text>
-
-<path transform="${nameTransform(base1)}" fill="#e6b443" d="${NAME.first.path}"/>
-<g clip-path="url(#surname)">
-  <rect x="0" y="${(skyTop - 4).toFixed(1)}" width="${W}" height="${(seaBottom - skyTop + 8).toFixed(1)}" fill="url(#sky)"/>
-  ${starField(28, PAD, skyTop + 6, SPAN, horizon - skyTop - 14, stars)}
-  <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="${(sunR * 4.5).toFixed(1)}" fill="url(#halo)"/>
-  <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="${sunR.toFixed(1)}" fill="url(#sun)"/>
-  <circle cx="${moonX.toFixed(1)}" cy="${moonY.toFixed(1)}" r="${(sunR * .55).toFixed(1)}" fill="url(#moon)"/>
-  <rect x="0" y="${horizon.toFixed(1)}" width="${W}" height="${(seaBottom - horizon + 6).toFixed(1)}" fill="url(#sea)"/>
-  <ellipse cx="${sunX.toFixed(1)}" cy="${seaBottom.toFixed(1)}" rx="${(sunR * .45).toFixed(1)}" ry="${((seaBottom - horizon) * .95).toFixed(1)}" fill="url(#reflection)"/>
+<g class="fade">
+  <circle class="led" cx="${PAD + 5}" cy="58" r="5" fill="#4dff7c"/>
+  <text x="${PAD + 20}" y="64" font-family="${SANS}" font-size="19" fill="#c9c2b6">Full-stack developer · Çanakkale, Türkiye</text>
+  <text x="${W - PAD}" y="64" text-anchor="end" font-family="${MONO}" font-size="15" fill="#a29d91">${esc(status)}</text>
 </g>
-<path transform="${nameTransform(base2)}" d="${NAME.second.path}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
 
-<text x="${PAD}" y="${stripY + 10}" font-family="${MONO}" font-size="14" fill="#8f887e">Harflerin içinde Çanakkale'nin gökyüzü · yarım saatte bir yenilenir</text>
-<rect x="${stripX}" y="${stripY}" width="${stripW}" height="10" rx="5" fill="url(#day)"/>
-<rect x="${stripX}" y="${stripY}" width="${stripW}" height="10" rx="5" fill="none" stroke="#fff" stroke-opacity=".12"/>
-${["00", "06", "12", "18", "24"].map((label, i) => `<text x="${(stripX + stripW * i / 4).toFixed(1)}" y="${stripY + 34}" text-anchor="middle" font-family="${MONO}" font-size="11" fill="#7d766e">${label}</text>`).join("")}
-<circle cx="${markerX.toFixed(1)}" cy="${stripY + 5}" r="16" fill="${toHex(c.glow)}" fill-opacity="${(.35 * Math.max(sunVisible, .4)).toFixed(3)}"/>
-<circle cx="${markerX.toFixed(1)}" cy="${stripY + 5}" r="9" fill="${toHex(alt > -6 ? c.sun : [244, 241, 232])}" stroke="${toHex(bg)}" stroke-width="2.5"/>
+<g class="rise1"><path transform="${nameTransform(base1)}" fill="#e6b443" d="${NAME.first.path}"/></g>
+<g class="rise2">
+  <g clip-path="url(#surname)">
+    <rect x="0" y="${(skyTop - 4).toFixed(1)}" width="${W}" height="${(seaBottom - skyTop + 8).toFixed(1)}" fill="url(#sky)"/>
+    ${starField(28, PAD, skyTop + 6, SPAN, horizon - skyTop - 14, stars)}
+    <circle class="halo" cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="${(sunR * 4.5).toFixed(1)}" fill="url(#halo)"/>
+    <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="${sunR.toFixed(1)}" fill="url(#sun)"/>
+    <circle cx="${moonX.toFixed(1)}" cy="${moonY.toFixed(1)}" r="${(sunR * .55).toFixed(1)}" fill="url(#moon)"/>
+    <rect x="0" y="${horizon.toFixed(1)}" width="${W}" height="${(seaBottom - horizon + 6).toFixed(1)}" fill="url(#sea)"/>
+    <ellipse cx="${sunX.toFixed(1)}" cy="${seaBottom.toFixed(1)}" rx="${(sunR * .45).toFixed(1)}" ry="${((seaBottom - horizon) * .95).toFixed(1)}" fill="url(#reflection)"/>
+    ${glints}
+  </g>
+  <path transform="${nameTransform(base2)}" d="${NAME.second.path}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+</g>
+
+<g class="fade">
+  <text x="${PAD}" y="${stripY + 10}" font-family="${MONO}" font-size="14" fill="#8f887e">Harflerin içinde Çanakkale'nin gökyüzü · yarım saatte bir yenilenir</text>
+  <rect x="${stripX}" y="${stripY}" width="${stripW}" height="10" rx="5" fill="url(#day)"/>
+  <rect x="${stripX}" y="${stripY}" width="${stripW}" height="10" rx="5" fill="none" stroke="#fff" stroke-opacity=".12"/>
+  ${["00", "06", "12", "18", "24"].map((label, i) => `<text x="${(stripX + stripW * i / 4).toFixed(1)}" y="${stripY + 34}" text-anchor="middle" font-family="${MONO}" font-size="11" fill="#7d766e">${label}</text>`).join("")}
+  <circle cx="${markerX.toFixed(1)}" cy="${stripY + 5}" r="16" fill="${toHex(c.glow)}" fill-opacity="${(.35 * Math.max(sunVisible, .4)).toFixed(3)}"/>
+  <circle class="pulse" cx="${markerX.toFixed(1)}" cy="${stripY + 5}" r="9" fill="none" stroke="${toHex(alt > -6 ? c.sun : [244, 241, 232])}" stroke-width="2"/>
+  <circle cx="${markerX.toFixed(1)}" cy="${stripY + 5}" r="9" fill="${toHex(alt > -6 ? c.sun : [244, 241, 232])}" stroke="${toHex(bg)}" stroke-width="2.5"/>
+</g>
 </svg>
 `;
 
