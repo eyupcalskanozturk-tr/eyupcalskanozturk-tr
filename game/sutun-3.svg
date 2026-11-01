@@ -17,6 +17,6 @@
 </defs>
 <text x="38" y="24" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#8b949e">3</text><path class="bob" style="animation-delay:0.24s" d="M29 34l9 9 9-9" fill="none" stroke="#3ea7ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="3" y="56" width="70" height="456" rx="16" fill="url(#panel)"/>
-<g clip-path="url(#tube)"><circle cx="38" cy="94" r="27" fill="#090b16"/><circle cx="38" cy="170" r="27" fill="#090b16"/><circle cx="38" cy="246" r="27" fill="#090b16"/><circle cx="38" cy="322" r="27" fill="#090b16"/><circle cx="38" cy="398" r="27" fill="#090b16"/><circle cx="38" cy="474" r="27" fill="#090b16"/><g transform="translate(0 -494)"><animateTransform attributeName="transform" type="translate" from="0 -494" to="0 0" begin="0.30s" dur="0.60s" calcMode="spline" keyTimes="0;1" keySplines=".55 0 1 .45" fill="freeze"/><circle cx="38" cy="474" r="27" fill="url(#blue)"/><circle cx="30" cy="465" r="8" fill="#fff" fill-opacity=".22"/></g></g>
+<g clip-path="url(#tube)"><circle cx="38" cy="94" r="27" fill="#090b16"/><circle cx="38" cy="170" r="27" fill="#090b16"/><circle cx="38" cy="246" r="27" fill="#090b16"/><circle cx="38" cy="322" r="27" fill="#090b16"/><circle cx="38" cy="398" r="27" fill="#090b16"/><circle cx="38" cy="474" r="27" fill="#090b16"/></g>
 
 </svg>

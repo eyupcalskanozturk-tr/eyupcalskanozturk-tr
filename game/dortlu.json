@@ -1,6 +1,6 @@
 {
   "game": 1,
-  "version": 4,
+  "version": 5,
   "board": [
     [
       0,
@@ -50,40 +50,22 @@
     [
       0,
       0,
-      1,
-      2,
+      0,
+      0,
       0,
       0,
       0
     ]
   ],
-  "moves": 2,
+  "moves": 0,
   "over": false,
   "result": null,
   "winLine": null,
-  "last": [
-    {
-      "r": 5,
-      "c": 2,
-      "p": 1
-    },
-    {
-      "r": 5,
-      "c": 3,
-      "p": 2
-    }
-  ],
+  "last": [],
   "stats": {
     "ziyaretci": 0,
     "bot": 0,
     "berabere": 0
   },
-  "recent": [
-    {
-      "login": "eyupcalskanozturk-tr",
-      "col": 3,
-      "issue": 5,
-      "result": null
-    }
-  ]
+  "recent": []
 }
