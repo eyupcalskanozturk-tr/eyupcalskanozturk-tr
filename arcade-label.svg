@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="56" viewBox="0 0 520 56" role="img" aria-label="Bugünün oyunu: Pac-Man">
+  <style>.b{animation:b 1.2s steps(1) infinite}@keyframes b{50%{opacity:0}}@media (prefers-reduced-motion:reduce){.b{animation:none}}</style>
+  <rect x=".5" y=".5" width="519" height="55" rx="27.5" fill="#0d1018" stroke="#e6b443" stroke-opacity=".45"/>
+  <circle class="b" cx="30" cy="28" r="6" fill="#4dff7c"/>
+  <text x="48" y="35" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#a9a39a">BUGÜNÜN OYUNU</text>
+  <text x="206" y="35" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="21" font-weight="800" fill="#e6b443">Pac-Man</text>
+</svg>
